@@ -68,7 +68,7 @@ switch ($selected_sort) {
     case 'antiguo':
         $posts_query .= " ORDER BY p.fecha_aprobacion ASC";
         break;
-    case 'reciente_creacion':
+    case 'nuevos':
         $posts_query .= " ORDER BY p.fecha_creacion DESC";
         break;
     case 'reciente':
@@ -141,9 +141,36 @@ $posts_result = $conn->query($posts_query);
         <!-- Top Filters -->
         <div class="filters-section">
             <?php
-            // Display success message
-            if (isset($_GET['success']) && $_GET['success'] === 'post_creado') {
-                echo '<div class="alert alert-success">¡Post creado exitosamente! Está pendiente de aprobación.</div>';
+            // Display success/error messages
+            if (isset($_GET['success'])) {
+                $success = $_GET['success'];
+                switch ($success) {
+                    case 'post_creado':
+                        echo '<div class="alert alert-success">¡Post creado exitosamente! Está pendiente de aprobación.</div>';
+                        break;
+                    case 'post_eliminado':
+                        echo '<div class="alert alert-success">Post eliminado exitosamente.</div>';
+                        break;
+                    case 'comentario_eliminado':
+                        echo '<div class="alert alert-success">Comentario eliminado exitosamente.</div>';
+                        break;
+                }
+            }
+            
+            if (isset($_GET['error'])) {
+                $error = $_GET['error'];
+                $mensaje = '';
+                switch ($error) {
+                    case 'error_eliminar':
+                        $mensaje = 'Hubo un error al eliminar. Inténtalo de nuevo.';
+                        break;
+                    case 'sin_permiso':
+                        $mensaje = 'No tienes permiso para realizar esta acción.';
+                        break;
+                }
+                if ($mensaje) {
+                    echo '<div class="alert alert-error">' . htmlspecialchars($mensaje) . '</div>';
+                }
             }
             ?>
             <h1>Feed de Posts</h1>
@@ -196,9 +223,6 @@ $posts_result = $conn->query($posts_query);
                         <option value="antiguo" <?php echo ($selected_sort === 'antiguo') ? 'selected' : ''; ?>>
                             Más Antiguos
                         </option>
-                        <option value="reciente_creacion" <?php echo ($selected_sort === 'reciente_creacion') ? 'selected' : ''; ?>>
-                            Últimos Creados
-                        </option>
                     </select>
                 </div>
                 
@@ -210,7 +234,7 @@ $posts_result = $conn->query($posts_query);
             </form>
         </div>
         
-        <!-- Posts Feed -->
+        <!-- posts -->
         <div class="posts-container">
             <?php 
             if ($posts_result && $posts_result->num_rows > 0) {
@@ -234,7 +258,9 @@ $posts_result = $conn->query($posts_query);
                     <?php if ($post['multimedia']): ?>
                     <div class="post-media">
                         <img src="data:image/jpeg;base64,<?php echo base64_encode($post['multimedia']); ?>" 
-                             alt="Imagen del post">
+                             alt="Imagen del post"
+                             class="post-image-clickable"
+                             onclick="openImageModal(this.src)">
                     </div>
                     <?php endif; ?>
                     
@@ -250,8 +276,19 @@ $posts_result = $conn->query($posts_query);
                         
                         <!-- Comment Button -->
                         <button class="action-btn comment-btn" onclick="toggleComments(<?php echo $post['id_post']; ?>)">
-                            <span>💬</span> <?php echo $post['comments_count']; ?>
+                            <?php echo $post['comments_count']; ?>
                         </button>
+                        
+                        <!-- Delete Button (only for post owner or admin) -->
+                        <?php if ($post['id_usuario'] == $_SESSION['user_id'] || $_SESSION['user_role'] == 1): ?>
+                        <form method="POST" action="../controllers/eliminar_post_controller.php" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post? Esta acción no se puede deshacer.');">
+                            <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
+                            <input type="hidden" name="redirect" value="dashboard.php">
+                            <button type="submit" class="action-btn delete-btn">
+                                Eliminar
+                            </button>
+                        </form>
+                        <?php endif; ?>
                     </div>
                     
                     <!-- Comments Section -->
@@ -270,8 +307,16 @@ $posts_result = $conn->query($posts_query);
                             ?>
                                 <div class="comment">
                                     <div class="comment-header">
-                                        <strong><?php echo htmlspecialchars($comment['nombre']); ?></strong>
-                                        <span class="comment-date"><?php echo date('d/m/Y H:i', strtotime($comment['fecha'])); ?></span>
+                                        <div class="comment-info">
+                                            <strong><?php echo htmlspecialchars($comment['nombre']); ?></strong>
+                                            <span class="comment-date"><?php echo date('d/m/Y H:i', strtotime($comment['fecha'])); ?></span>
+                                        </div>
+                                        <?php if ($comment['id_usuario'] == $_SESSION['user_id'] || $_SESSION['user_role'] == 1): ?>
+                                        <form method="POST" action="../controllers/eliminar_comentario_controller.php" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este comentario?');">
+                                            <input type="hidden" name="id_comentario" value="<?php echo $comment['id_comentario']; ?>">
+                                            <button type="submit" class="delete-comment-btn" title="Eliminar comentario">🗑️</button>
+                                        </form>
+                                        <?php endif; ?>
                                     </div>
                                     <p class="comment-text"><?php echo htmlspecialchars($comment['comentario']); ?></p>
                                 </div>
@@ -305,47 +350,13 @@ $posts_result = $conn->query($posts_query);
         </div>
     </main>
     
-    <script>
-        // Dark mode toggle functionality
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const body = document.body;
-        
-        // Check for saved dark mode preference
-        const darkMode = localStorage.getItem('darkMode');
-        
-        if (darkMode === 'enabled') {
-            body.classList.add('dark-mode');
-        }
-        
-        // Toggle dark mode
-        darkModeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            
-            // Save preference
-            if (body.classList.contains('dark-mode')) {
-                localStorage.setItem('darkMode', 'enabled');
-            } else {
-                localStorage.setItem('darkMode', 'disabled');
-            }
-        });
-        
-        // Auto-submit filters when changed (for better UX)
-        document.querySelectorAll('select[name="mundial"], select[name="categoria"], select[name="orden"]').forEach(select => {
-            select.addEventListener('change', function() {
-                this.form.submit();
-            });
-        });
-        
-        // Toggle comments section
-        function toggleComments(postId) {
-            const commentsSection = document.getElementById('comments-' + postId);
-            if (commentsSection.style.display === 'none') {
-                commentsSection.style.display = 'block';
-            } else {
-                commentsSection.style.display = 'none';
-            }
-        }
-    </script>
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <span class="modal-close" onclick="closeImageModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+    
+    <script src="js/dashboard.js"></script>
 </body>
 </html>
 

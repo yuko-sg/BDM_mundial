@@ -342,6 +342,37 @@ body.dark-mode .help-text {
     background: #c53030;
 }
 
+/* Delete Button Styles */
+.delete-btn {
+    background: #ef4444 !important;
+    color: white !important;
+}
+
+.delete-btn:hover {
+    background: #dc2626 !important;
+}
+
+body.dark-mode .delete-btn {
+    background: #991b1b !important;
+    color: white !important;
+}
+
+body.dark-mode .delete-btn:hover {
+    background: #7f1d1d !important;
+}
+
+.alert-error {
+    background-color: #fee;
+    color: #c33;
+    border: 1px solid #fcc;
+}
+
+body.dark-mode .alert-error {
+    background-color: #3d1f1f;
+    color: #ff6b6b;
+    border-color: #5c2020;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .profile-header {

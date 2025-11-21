@@ -148,6 +148,9 @@ $conn->close();
                 case 'password_actualizado':
                     echo '<div class="alert alert-success">¡Contraseña actualizada exitosamente!</div>';
                     break;
+                case 'post_eliminado':
+                    echo '<div class="alert alert-success">Post eliminado exitosamente.</div>';
+                    break;
             }
         }
         
@@ -163,6 +166,12 @@ $conn->close();
                     break;
                 case 'error_actualizar':
                     $mensaje = 'Hubo un error al actualizar. Inténtalo de nuevo.';
+                    break;
+                case 'error_eliminar':
+                    $mensaje = 'Hubo un error al eliminar. Inténtalo de nuevo.';
+                    break;
+                case 'sin_permiso':
+                    $mensaje = 'No tienes permiso para realizar esta acción.';
                     break;
             }
             if ($mensaje) {
@@ -212,9 +221,22 @@ $conn->close();
                         
                         <?php if ($post['multimedia']): ?>
                         <div class="post-media">
-                            <img src="data:image/jpeg;base64,<?php echo base64_encode($post['multimedia']); ?>" alt="Imagen del post">
+                            <img src="data:image/jpeg;base64,<?php echo base64_encode($post['multimedia']); ?>" 
+                                 alt="Imagen del post"
+                                 class="post-image-clickable"
+                                 onclick="openImageModal(this.src)">
                         </div>
                         <?php endif; ?>
+                        
+                        <div class="post-actions">
+                            <form method="POST" action="../controllers/eliminar_post_controller.php" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post? Esta acción no se puede deshacer.');">
+                                <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
+                                <input type="hidden" name="redirect" value="perfil.php">
+                                <button type="submit" class="action-btn delete-btn">
+                                    <span>🗑️</span> Eliminar
+                                </button>
+                            </form>
+                        </div>
                     </article>
                 <?php 
                     endwhile;
@@ -253,7 +275,10 @@ $conn->close();
                         
                         <?php if ($post['multimedia']): ?>
                         <div class="post-media">
-                            <img src="data:image/jpeg;base64,<?php echo base64_encode($post['multimedia']); ?>" alt="Imagen del post">
+                            <img src="data:image/jpeg;base64,<?php echo base64_encode($post['multimedia']); ?>" 
+                                 alt="Imagen del post"
+                                 class="post-image-clickable"
+                                 onclick="openImageModal(this.src)">
                         </div>
                         <?php endif; ?>
                     </article>
@@ -329,44 +354,13 @@ $conn->close();
         </div>
     </main>
     
-    <script>
-        // Dark mode toggle functionality
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const body = document.body;
-        
-        const darkMode = localStorage.getItem('darkMode');
-        if (darkMode === 'enabled') {
-            body.classList.add('dark-mode');
-        }
-        
-        darkModeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            if (body.classList.contains('dark-mode')) {
-                localStorage.setItem('darkMode', 'enabled');
-            } else {
-                localStorage.setItem('darkMode', 'disabled');
-            }
-        });
-        
-        // Tabs functionality
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Remove active class from all buttons and contents
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked button
-                btn.classList.add('active');
-                
-                // Show corresponding content
-                const tabId = btn.getAttribute('data-tab');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-    </script>
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <span class="modal-close" onclick="closeImageModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+    
+    <link rel="stylesheet" href="js/perfil.js">
 </body>
 </html>
 

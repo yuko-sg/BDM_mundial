@@ -300,10 +300,22 @@ body.dark-mode .dark-mode-toggle .icon-dark {
     border: 1px solid #cfc;
 }
 
+.alert-error {
+    background-color: #fee;
+    color: #c33;
+    border: 1px solid #fcc;
+}
+
 body.dark-mode .alert-success {
     background-color: #1f3d1f;
     color: #6bff6b;
     border-color: #205c20;
+}
+
+body.dark-mode .alert-error {
+    background-color: #3d1f1f;
+    color: #ff6b6b;
+    border-color: #5c2020;
 }
 
 .filters-section h1 {
@@ -454,11 +466,21 @@ body.dark-mode .alert-success {
     width: 100%;
     max-height: 500px;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+}
+
+body.dark-mode .post-media {
+    background: #0d1117;
 }
 
 .post-media img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    max-height: 500px;
+    object-fit: contain;
     display: block;
 }
 
@@ -501,6 +523,24 @@ body.dark-mode .like-btn.liked {
     color: #ff6b6b;
 }
 
+.delete-btn {
+    background: #ef4444 !important;
+    color: white !important;
+}
+
+.delete-btn:hover {
+    background: #dc2626 !important;
+}
+
+body.dark-mode .delete-btn {
+    background: #991b1b !important;
+    color: white !important;
+}
+
+body.dark-mode .delete-btn:hover {
+    background: #7f1d1d !important;
+}
+
 /* Comments Section */
 .comments-section {
     border-top: 1px solid #f0f0f0;
@@ -537,6 +577,33 @@ body.dark-mode .comment {
     justify-content: space-between;
     margin-bottom: 8px;
     align-items: center;
+}
+
+.comment-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.delete-comment-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+}
+
+.delete-comment-btn:hover {
+    opacity: 1;
+    background: rgba(239, 68, 68, 0.1);
+    transform: scale(1.1);
+}
+
+body.dark-mode .delete-comment-btn:hover {
+    background: rgba(153, 27, 27, 0.3);
 }
 
 .comment-header strong {
@@ -636,6 +703,80 @@ body.dark-mode .comment-form textarea {
     margin-bottom: 10px;
 }
 
+/* Image Modal Styles */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.95);
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+body.dark-mode .image-modal {
+    background-color: rgba(0, 0, 0, 0.98);
+}
+
+.modal-content {
+    max-width: 90%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+    from { 
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to { 
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 50px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    line-height: 1;
+    user-select: none;
+    z-index: 10000;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+    color: #ff6b6b;
+    transform: scale(1.1);
+}
+
+.post-image-clickable {
+    cursor: pointer;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.post-image-clickable:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar {
@@ -669,6 +810,17 @@ body.dark-mode .comment-form textarea {
     
     .filter-group select {
         width: 100%;
+    }
+    
+    .modal-close {
+        top: 10px;
+        right: 20px;
+        font-size: 40px;
+    }
+    
+    .modal-content {
+        max-width: 95%;
+        max-height: 80vh;
     }
 }
 

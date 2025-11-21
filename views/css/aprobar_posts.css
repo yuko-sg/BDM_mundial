@@ -146,3 +146,21 @@ body.dark-mode .reject-btn:hover {
     font-size: 1.2rem;
 }
 
+.delete-btn {
+    background: #ef4444 !important;
+    color: white !important;
+}
+
+.delete-btn:hover {
+    background: #dc2626 !important;
+}
+
+body.dark-mode .delete-btn {
+    background: #991b1b !important;
+    color: white !important;
+}
+
+body.dark-mode .delete-btn:hover {
+    background: #7f1d1d !important;
+}
+

@@ -106,11 +106,27 @@ $posts_result = $conn->query($posts_query);
                 case 'rechazado':
                     echo '<div class="alert alert-success">Post rechazado exitosamente.</div>';
                     break;
+                case 'post_eliminado':
+                    echo '<div class="alert alert-success">Post eliminado exitosamente.</div>';
+                    break;
             }
         }
         
         if (isset($_GET['error'])) {
-            echo '<div class="alert alert-error">Hubo un error. Inténtalo de nuevo.</div>';
+            $error = $_GET['error'];
+            $mensaje = '';
+            switch ($error) {
+                case 'error_eliminar':
+                    $mensaje = 'Hubo un error al eliminar. Inténtalo de nuevo.';
+                    break;
+                case 'sin_permiso':
+                    $mensaje = 'No tienes permiso para realizar esta acción.';
+                    break;
+                default:
+                    $mensaje = 'Hubo un error. Inténtalo de nuevo.';
+                    break;
+            }
+            echo '<div class="alert alert-error">' . htmlspecialchars($mensaje) . '</div>';
         }
         ?>
         
@@ -139,7 +155,9 @@ $posts_result = $conn->query($posts_query);
                     <?php if ($post['multimedia']): ?>
                     <div class="post-media">
                         <img src="data:image/jpeg;base64,<?php echo base64_encode($post['multimedia']); ?>" 
-                             alt="Imagen del post">
+                             alt="Imagen del post"
+                             class="post-image-clickable"
+                             onclick="openImageModal(this.src)">
                     </div>
                     <?php endif; ?>
                     
@@ -159,6 +177,14 @@ $posts_result = $conn->query($posts_query);
                                 <span>✗</span> Rechazar
                             </button>
                         </form>
+                        
+                        <form method="POST" action="../controllers/eliminar_post_controller.php" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post permanentemente? Esta acción no se puede deshacer.');">
+                            <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
+                            <input type="hidden" name="redirect" value="aprobar_posts.php">
+                            <button type="submit" class="action-btn delete-btn">
+                                <span>🗑️</span> Eliminar
+                            </button>
+                        </form>
                     </div>
                 </article>
             <?php 
@@ -175,30 +201,13 @@ $posts_result = $conn->query($posts_query);
         </div>
     </main>
     
-    <script>
-        // Dark mode toggle functionality
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const body = document.body;
-        
-        // Check for saved dark mode preference
-        const darkMode = localStorage.getItem('darkMode');
-        
-        if (darkMode === 'enabled') {
-            body.classList.add('dark-mode');
-        }
-        
-        // Toggle dark mode
-        darkModeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            
-            // Save preference
-            if (body.classList.contains('dark-mode')) {
-                localStorage.setItem('darkMode', 'enabled');
-            } else {
-                localStorage.setItem('darkMode', 'disabled');
-            }
-        });
-    </script>
+    <!-- Image Modal -->
+    <div id="imageModal" class="image-modal">
+        <span class="modal-close" onclick="closeImageModal()">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+    
+    <link rel="stylesheet" href="js/aprobar_posts.js">
 </body>
 </html>
 
