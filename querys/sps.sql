@@ -4,6 +4,7 @@ DROP PROCEDURE IF EXISTS sp_login;
 DROP PROCEDURE IF EXISTS sp_registrar_usuario;
 DROP PROCEDURE IF EXISTS sp_aprobar_post;
 DROP PROCEDURE IF EXISTS sp_rechazar_post;
+DROP PROCEDURE IF EXISTS sp_obtener_posts_por_likes;
 DROP PROCEDURE IF EXISTS mundiales_selector;
 DROP PROCEDURE IF EXISTS categorias_selector;
 
@@ -51,12 +52,39 @@ CREATE PROCEDURE sp_rechazar_post(
 )
 BEGIN
     DELETE FROM likes WHERE id_post = p_id_post;
-    
     DELETE FROM comentarios WHERE id_post = p_id_post;
-    
     DELETE FROM posts WHERE id_post = p_id_post;
-    
     SELECT ROW_COUNT() as affected_rows;
+END$$
+
+CREATE PROCEDURE sp_obtener_posts_por_likes(
+    IN p_id_usuario INT,
+    IN p_id_mundial INT,
+    IN p_id_categoria INT
+)
+BEGIN
+    -- Use the por_likes view which already orders posts by likes_count DESC
+    SELECT 
+        pl.id_post,
+        pl.id_usuario,
+        pl.contenido,
+        pl.multimedia,
+        pl.fecha_creacion,
+        pl.fecha_aprobacion,
+        pl.id_mundial,
+        pl.id_categoria,
+        pl.id_estado,
+        pl.mundial,
+        pl.categoria,
+        pl.estado,
+        pl.likes_count,
+        (SELECT COUNT(*) FROM comentarios cm WHERE cm.id_post = pl.id_post) as comments_count,
+        (SELECT COUNT(*) FROM likes l WHERE l.id_post = pl.id_post AND l.id_usuario = p_id_usuario) as user_liked
+    FROM por_likes pl
+    WHERE pl.estado = 'aprobado'
+    AND (p_id_mundial = 0 OR pl.id_mundial = p_id_mundial)
+    AND (p_id_categoria = 0 OR pl.id_categoria = p_id_categoria)
+    ORDER BY pl.likes_count DESC;
 END$$
 
 CREATE PROCEDURE mundiales_selector()

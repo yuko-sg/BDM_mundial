@@ -44,40 +44,56 @@ while ($conn->more_results()) {
     $conn->next_result();
 }
 
-// Build posts query with filters and counts
-$posts_query = "SELECT p.*, m.mundial, c.categoria,
-                (SELECT COUNT(*) FROM likes l WHERE l.id_post = p.id_post) as likes_count,
-                (SELECT COUNT(*) FROM comentarios cm WHERE cm.id_post = p.id_post) as comments_count,
-                (SELECT COUNT(*) FROM likes l WHERE l.id_post = p.id_post AND l.id_usuario = " . $_SESSION['user_id'] . ") as user_liked
-                FROM posts p 
-                JOIN mundiales m ON p.id_mundial = m.id_mundial 
-                JOIN categorias c ON p.id_categoria = c.id_categoria
-                JOIN estados e ON p.id_estado = e.id_estado
-                WHERE e.estado = 'aprobado'";
+// Get posts based on sorting option
+if ($selected_sort === 'gustados') {
+    // Use stored procedure with por_likes view for "Más Gustados"
+    $stmt = $conn->prepare("CALL sp_obtener_posts_por_likes(?, ?, ?)");
+    $stmt->bind_param("iii", $_SESSION['user_id'], $selected_mundial, $selected_categoria);
+    $stmt->execute();
+    $posts_result = $stmt->get_result();
+} else {
+    // Build posts query with filters and counts for other sorting options
+    $posts_query = "SELECT p.*, m.mundial, c.categoria,
+                    (SELECT COUNT(*) FROM likes l WHERE l.id_post = p.id_post) as likes_count,
+                    (SELECT COUNT(*) FROM comentarios cm WHERE cm.id_post = p.id_post) as comments_count,
+                    (SELECT COUNT(*) FROM likes l WHERE l.id_post = p.id_post AND l.id_usuario = " . $_SESSION['user_id'] . ") as user_liked
+                    FROM posts p 
+                    JOIN mundiales m ON p.id_mundial = m.id_mundial 
+                    JOIN categorias c ON p.id_categoria = c.id_categoria
+                    JOIN estados e ON p.id_estado = e.id_estado
+                    WHERE e.estado = 'aprobado'";
 
-if ($selected_mundial > 0) {
-    $posts_query .= " AND p.id_mundial = " . $selected_mundial;
+    if ($selected_mundial > 0) {
+        $posts_query .= " AND p.id_mundial = " . $selected_mundial;
+    }
+
+    if ($selected_categoria > 0) {
+        $posts_query .= " AND p.id_categoria = " . $selected_categoria;
+    }
+
+    // Add sorting based on selected option
+    switch ($selected_sort) {
+        case 'antiguo':
+            $posts_query .= " ORDER BY p.fecha_aprobacion ASC";
+            break;
+        case 'nuevos':
+            $posts_query .= " ORDER BY p.fecha_creacion DESC";
+            break;
+        case 'reciente':
+        default:
+            $posts_query .= " ORDER BY p.fecha_aprobacion DESC";
+            break;
+    }
+
+    $posts_result = $conn->query($posts_query);
 }
 
-if ($selected_categoria > 0) {
-    $posts_query .= " AND p.id_categoria = " . $selected_categoria;
+// Clear stored procedure results if using sp_obtener_posts_por_likes
+if ($selected_sort === 'gustados') {
+    while ($conn->more_results()) {
+        $conn->next_result();
+    }
 }
-
-// Add sorting based on selected option
-switch ($selected_sort) {
-    case 'antiguo':
-        $posts_query .= " ORDER BY p.fecha_aprobacion ASC";
-        break;
-    case 'nuevos':
-        $posts_query .= " ORDER BY p.fecha_creacion DESC";
-        break;
-    case 'reciente':
-    default:
-        $posts_query .= " ORDER BY p.fecha_aprobacion DESC";
-        break;
-}
-
-$posts_result = $conn->query($posts_query);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -222,6 +238,9 @@ $posts_result = $conn->query($posts_query);
                         </option>
                         <option value="antiguo" <?php echo ($selected_sort === 'antiguo') ? 'selected' : ''; ?>>
                             Más Antiguos
+                        </option>
+                        <option value="gustados" <?php echo ($selected_sort === 'gustados') ? 'selected' : ''; ?>>
+                            Más Gustados
                         </option>
                     </select>
                 </div>
