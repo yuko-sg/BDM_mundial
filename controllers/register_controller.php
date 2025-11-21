@@ -69,18 +69,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // default rol es 2 pa los normies
     $id_rol = 2;
     
-    // Insert new user
+    // Insert new user using stored procedure
     $stmt = $conn->prepare("CALL sp_registrar_usuario(?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("sssssi", $nombre, $fecha_nacimiento, $foto_perfil, $correo, $contrasena_hash, $id_rol);
     
     if ($stmt->execute()) {
+        $result = $stmt->get_result();
         $stmt->close();
+        
+        // Clear stored procedure results
+        while ($conn->more_results()) {
+            $conn->next_result();
+        }
+        
         $conn->close();
         // Registration successful, redirect to login
         header("Location: ../views/login.php?success=registro_exitoso");
         exit();
     } else {
         $stmt->close();
+        
+        // Clear stored procedure results
+        while ($conn->more_results()) {
+            $conn->next_result();
+        }
+        
         $conn->close();
         header("Location: ../views/registrarse.php?error=error_registro");
         exit();
