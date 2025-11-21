@@ -80,6 +80,43 @@ BEGIN
     ORDER BY pa.fecha_creacion DESC;
 END$$
 
+CREATE PROCEDURE sp_obtener_posts_dashboard(
+    IN p_id_usuario INT,
+    IN p_id_mundial INT,
+    IN p_id_categoria INT,
+    IN p_orden VARCHAR(20)
+)
+BEGIN
+    SELECT 
+        pc.id_post,
+        pc.id_usuario,
+        pc.contenido,
+        pc.multimedia,
+        pc.fecha_creacion,
+        pc.fecha_aprobacion,
+        pc.id_mundial,
+        pc.id_categoria,
+        pc.id_estado,
+        pc.mundial,
+        pc.categoria,
+        pc.estado,
+        fn_obtener_likes(pc.id_post) as likes_count,
+        fn_obtener_comentarios(pc.id_post) as comments_count,
+        (SELECT COUNT(*) FROM likes l WHERE l.id_post = pc.id_post AND l.id_usuario = p_id_usuario) as user_liked
+    FROM posts_completos pc
+    WHERE pc.estado = 'aprobado'
+    AND (p_id_mundial = 0 OR pc.id_mundial = p_id_mundial)
+    AND (p_id_categoria = 0 OR pc.id_categoria = p_id_categoria)
+    ORDER BY 
+        CASE 
+            WHEN p_orden = 'antiguo' THEN pc.fecha_aprobacion
+        END ASC,
+        CASE 
+            WHEN p_orden = 'nuevos' THEN pc.fecha_creacion
+            WHEN p_orden = 'reciente' THEN pc.fecha_aprobacion
+        END DESC;
+END$$
+
 CREATE PROCEDURE sp_obtener_posts_usuario(IN p_id_usuario INT)
 BEGIN
     SELECT p.*, m.mundial, c.categoria, e.estado,
