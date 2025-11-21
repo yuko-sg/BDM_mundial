@@ -17,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get database connection
     $conn = getConnection();
     
-    // Get user by email
-    $stmt = $conn->prepare("SELECT id_usuario, nombre, correo, contrasena, id_rol FROM usuarios WHERE correo = ?");
+    // Get user by email using stored procedure
+    $stmt = $conn->prepare("CALL sp_login(?)");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -35,6 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_role'] = $user['id_rol'];
             
             $stmt->close();
+            
+            // Clear stored procedure results
+            while ($conn->more_results()) {
+                $conn->next_result();
+            }
+            
             $conn->close();
             
             // Redirect to dashboard
@@ -43,6 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             // Invalid password
             $stmt->close();
+            
+            // Clear stored procedure results
+            while ($conn->more_results()) {
+                $conn->next_result();
+            }
+            
             $conn->close();
             header("Location: ../views/login.php?error=credenciales_invalidas");
             exit();
@@ -50,6 +62,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // User not found
         $stmt->close();
+        
+        // Clear stored procedure results
+        while ($conn->more_results()) {
+            $conn->next_result();
+        }
+        
         $conn->close();
         header("Location: ../views/login.php?error=credenciales_invalidas");
         exit();
