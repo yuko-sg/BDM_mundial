@@ -63,7 +63,6 @@ CREATE PROCEDURE sp_obtener_posts_por_likes(
     IN p_id_categoria INT
 )
 BEGIN
-    -- Use the por_likes view which already orders posts by likes_count DESC
     SELECT 
         pl.id_post,
         pl.id_usuario,
@@ -78,7 +77,7 @@ BEGIN
         pl.categoria,
         pl.estado,
         pl.likes_count,
-        (SELECT COUNT(*) FROM comentarios cm WHERE cm.id_post = pl.id_post) as comments_count,
+        fn_obtener_comentarios(pl.id_post) as comments_count,
         (SELECT COUNT(*) FROM likes l WHERE l.id_post = pl.id_post AND l.id_usuario = p_id_usuario) as user_liked
     FROM por_likes pl
     WHERE pl.estado = 'aprobado'

@@ -1,36 +1,6 @@
 USE bdm_mundial;
 
--- Drop all procedures if they exist
-DROP PROCEDURE IF EXISTS sp_login;
-DROP PROCEDURE IF EXISTS sp_registrar_usuario;
-DROP PROCEDURE IF EXISTS sp_aprobar_post;
-DROP PROCEDURE IF EXISTS sp_rechazar_post;
-DROP PROCEDURE IF EXISTS sp_obtener_perfil_usuario;
-DROP PROCEDURE IF EXISTS sp_obtener_foto_perfil;
-DROP PROCEDURE IF EXISTS sp_obtener_posts_usuario;
-DROP PROCEDURE IF EXISTS sp_obtener_posts_likes_usuario;
-DROP PROCEDURE IF EXISTS sp_crear_post;
-DROP PROCEDURE IF EXISTS sp_eliminar_post;
-DROP PROCEDURE IF EXISTS sp_verificar_propietario_post;
-DROP PROCEDURE IF EXISTS sp_verificar_like;
-DROP PROCEDURE IF EXISTS sp_crear_like;
-DROP PROCEDURE IF EXISTS sp_eliminar_like;
-DROP PROCEDURE IF EXISTS sp_crear_comentario;
-DROP PROCEDURE IF EXISTS sp_eliminar_comentario;
-DROP PROCEDURE IF EXISTS sp_verificar_propietario_comentario;
-DROP PROCEDURE IF EXISTS sp_actualizar_perfil_con_foto;
-DROP PROCEDURE IF EXISTS sp_actualizar_perfil_sin_foto;
-DROP PROCEDURE IF EXISTS sp_cambiar_password;
-DROP PROCEDURE IF EXISTS sp_obtener_password;
-DROP PROCEDURE IF EXISTS sp_verificar_email_disponible;
-DROP PROCEDURE IF EXISTS mundiales_selector;
-DROP PROCEDURE IF EXISTS categorias_selector;
-
 DELIMITER $$
-
--- ===========================
--- AUTHENTICATION PROCEDURES
--- ===========================
 
 CREATE PROCEDURE sp_login(IN p_correo VARCHAR(30))
 BEGIN
@@ -54,10 +24,6 @@ BEGIN
         SELECT id_usuario FROM usuarios WHERE correo = p_correo AND id_usuario != p_id_usuario;
     END IF;
 END$$
-
--- ===========================
--- POST PROCEDURES
--- ===========================
 
 CREATE PROCEDURE sp_crear_post(
     IN p_id_usuario INT, IN p_contenido TEXT, IN p_multimedia MEDIUMBLOB,
@@ -98,8 +64,8 @@ END$$
 CREATE PROCEDURE sp_obtener_posts_usuario(IN p_id_usuario INT)
 BEGIN
     SELECT p.*, m.mundial, c.categoria, e.estado,
-           (SELECT COUNT(*) FROM likes l WHERE l.id_post = p.id_post) as likes_count,
-           (SELECT COUNT(*) FROM comentarios cm WHERE cm.id_post = p.id_post) as comments_count,
+           fn_obtener_likes(p.id_post) as likes_count,
+           fn_obtener_comentarios(p.id_post) as comments_count,
            (SELECT COUNT(*) FROM likes l WHERE l.id_post = p.id_post AND l.id_usuario = p_id_usuario) as user_liked
     FROM posts p 
     JOIN mundiales m ON p.id_mundial = m.id_mundial 
@@ -112,8 +78,8 @@ END$$
 CREATE PROCEDURE sp_obtener_posts_likes_usuario(IN p_id_usuario INT)
 BEGIN
     SELECT p.*, m.mundial, c.categoria, l.fecha as fecha_like,
-           (SELECT COUNT(*) FROM likes lk WHERE lk.id_post = p.id_post) as likes_count,
-           (SELECT COUNT(*) FROM comentarios cm WHERE cm.id_post = p.id_post) as comments_count,
+           fn_obtener_likes(p.id_post) as likes_count,
+           fn_obtener_comentarios(p.id_post) as comments_count,
            (SELECT COUNT(*) FROM likes lk WHERE lk.id_post = p.id_post AND lk.id_usuario = p_id_usuario) as user_liked
     FROM likes l
     JOIN posts p ON l.id_post = p.id_post
@@ -123,10 +89,6 @@ BEGIN
     WHERE l.id_usuario = p_id_usuario AND e.estado = 'aprobado'
     ORDER BY l.fecha DESC;
 END$$
-
--- ===========================
--- LIKE PROCEDURES
--- ===========================
 
 CREATE PROCEDURE sp_verificar_like(IN p_id_usuario INT, IN p_id_post INT)
 BEGIN
@@ -145,10 +107,6 @@ BEGIN
     SELECT ROW_COUNT() as affected_rows;
 END$$
 
--- ===========================
--- COMMENT PROCEDURES
--- ===========================
-
 CREATE PROCEDURE sp_crear_comentario(IN p_id_usuario INT, IN p_id_post INT, IN p_comentario VARCHAR(200), IN p_fecha DATETIME)
 BEGIN
     INSERT INTO comentarios (id_usuario, id_post, comentario, fecha) 
@@ -166,10 +124,6 @@ BEGIN
     DELETE FROM comentarios WHERE id_comentario = p_id_comentario;
     SELECT ROW_COUNT() as affected_rows;
 END$$
-
--- ===========================
--- PROFILE PROCEDURES
--- ===========================
 
 CREATE PROCEDURE sp_obtener_perfil_usuario(IN p_id_usuario INT)
 BEGIN

@@ -54,8 +54,8 @@ if ($selected_sort === 'gustados') {
 } else {
     // Build posts query with filters and counts for other sorting options
     $posts_query = "SELECT p.*, m.mundial, c.categoria,
-                    (SELECT COUNT(*) FROM likes l WHERE l.id_post = p.id_post) as likes_count,
-                    (SELECT COUNT(*) FROM comentarios cm WHERE cm.id_post = p.id_post) as comments_count,
+                    fn_obtener_likes(p.id_post) as likes_count,
+                    fn_obtener_comentarios(p.id_post) as comments_count,
                     (SELECT COUNT(*) FROM likes l WHERE l.id_post = p.id_post AND l.id_usuario = " . $_SESSION['user_id'] . ") as user_liked
                     FROM posts p 
                     JOIN mundiales m ON p.id_mundial = m.id_mundial 
