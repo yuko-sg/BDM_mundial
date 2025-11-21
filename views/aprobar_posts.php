@@ -162,7 +162,7 @@ $posts_result = $conn->query($posts_query);
                     <?php endif; ?>
                     
                     <div class="post-actions admin-actions">
-                        <form method="POST" action="../controllers/aprobar_post_controller.php" style="display: inline;">
+                        <form method="POST" action="../controllers/aprobar_post_controller.php">
                             <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
                             <input type="hidden" name="accion" value="aprobar">
                             <button type="submit" class="action-btn approve-btn">
@@ -170,7 +170,7 @@ $posts_result = $conn->query($posts_query);
                             </button>
                         </form>
                         
-                        <form method="POST" action="../controllers/aprobar_post_controller.php" style="display: inline;">
+                        <form method="POST" action="../controllers/aprobar_post_controller.php">
                             <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
                             <input type="hidden" name="accion" value="rechazar">
                             <button type="submit" class="action-btn reject-btn" onclick="return confirm('¿Estás seguro de rechazar este post?')">
@@ -178,7 +178,7 @@ $posts_result = $conn->query($posts_query);
                             </button>
                         </form>
                         
-                        <form method="POST" action="../controllers/eliminar_post_controller.php" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post permanentemente? Esta acción no se puede deshacer.');">
+                        <form method="POST" action="../controllers/eliminar_post_controller.php" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post permanentemente? Esta acción no se puede deshacer.');">
                             <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
                             <input type="hidden" name="redirect" value="aprobar_posts.php">
                             <button type="submit" class="action-btn delete-btn">
@@ -207,7 +207,7 @@ $posts_result = $conn->query($posts_query);
         <img class="modal-content" id="modalImage">
     </div>
     
-    <link rel="stylesheet" href="js/aprobar_posts.js">
+    <script src="js/aprobar_posts.js"></script>
 </body>
 </html>
 

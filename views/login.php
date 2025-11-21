@@ -53,7 +53,7 @@
         </div>
     </div>
     
-    <link rel="stylesheet" href="js/login.js">
+    <script src="js/login.js"></script>
 </body>
 </html>
 

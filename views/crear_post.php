@@ -138,7 +138,7 @@ while ($conn->more_results()) {
         </div>
     </div>
     
-    <link rel="stylesheet" href="js/crear_post.js">
+    <script src="js/crear_posts.js"></script>
 </body>
 </html>
 

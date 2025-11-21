@@ -155,6 +155,15 @@ body.dark-mode .reject-btn:hover {
     background: #dc2626 !important;
 }
 
+.post-actions form {
+    display: flex;
+}
+
+.post-actions form:has(.delete-btn),
+.admin-actions form:has(.delete-btn) {
+    margin-left: auto;
+}
+
 body.dark-mode .delete-btn {
     background: #991b1b !important;
     color: white !important;

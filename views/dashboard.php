@@ -266,7 +266,7 @@ $posts_result = $conn->query($posts_query);
                     
                     <div class="post-actions">
                         <!-- Like Button -->
-                        <form method="POST" action="../controllers/like_controller.php" style="display: inline;">
+                        <form method="POST" action="../controllers/like_controller.php">
                             <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
                             <button type="submit" class="action-btn like-btn <?php echo ($post['user_liked'] > 0) ? 'liked' : ''; ?>">
                                 <span><?php echo ($post['user_liked'] > 0) ? '❤️' : '🤍'; ?></span>
@@ -276,12 +276,12 @@ $posts_result = $conn->query($posts_query);
                         
                         <!-- Comment Button -->
                         <button class="action-btn comment-btn" onclick="toggleComments(<?php echo $post['id_post']; ?>)">
-                            <?php echo $post['comments_count']; ?>
+                            💬 <?php echo $post['comments_count']; ?>
                         </button>
                         
                         <!-- Delete Button (only for post owner or admin) -->
                         <?php if ($post['id_usuario'] == $_SESSION['user_id'] || $_SESSION['user_role'] == 1): ?>
-                        <form method="POST" action="../controllers/eliminar_post_controller.php" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post? Esta acción no se puede deshacer.');">
+                        <form method="POST" action="../controllers/eliminar_post_controller.php" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post? Esta acción no se puede deshacer.');">
                             <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
                             <input type="hidden" name="redirect" value="dashboard.php">
                             <button type="submit" class="action-btn delete-btn">
@@ -312,7 +312,7 @@ $posts_result = $conn->query($posts_query);
                                             <span class="comment-date"><?php echo date('d/m/Y H:i', strtotime($comment['fecha'])); ?></span>
                                         </div>
                                         <?php if ($comment['id_usuario'] == $_SESSION['user_id'] || $_SESSION['user_role'] == 1): ?>
-                                        <form method="POST" action="../controllers/eliminar_comentario_controller.php" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este comentario?');">
+                                        <form method="POST" action="../controllers/eliminar_comentario_controller.php" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este comentario?');">
                                             <input type="hidden" name="id_comentario" value="<?php echo $comment['id_comentario']; ?>">
                                             <button type="submit" class="delete-comment-btn" title="Eliminar comentario">🗑️</button>
                                         </form>

@@ -10,54 +10,47 @@ if (!isset($_SESSION['user_id'])) {
 require_once '../models/db_connection.php';
 $conn = getConnection();
 
-// Get user information
-$user_query = "SELECT nombre, fecha_de_nacimiento, foto_perfil, correo FROM usuarios WHERE id_usuario = ?";
-$stmt = $conn->prepare($user_query);
+// Get user information using stored procedure
+$stmt = $conn->prepare("CALL sp_obtener_perfil_usuario(?)");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $user_result = $stmt->get_result();
 $user = $user_result->fetch_assoc();
 $stmt->close();
 
-// Get user's profile picture
-$user_query = "SELECT foto_perfil FROM usuarios WHERE id_usuario = ?";
-$stmt = $conn->prepare($user_query);
-$stmt->bind_param("i", $_SESSION['user_id']);
-$stmt->execute();
-$user_result = $stmt->get_result();
-$user_data = $user_result->fetch_assoc();
-$stmt->close();
+// Clear stored procedure results
+while ($conn->more_results()) {
+    $conn->next_result();
+}
 
-// Get user's posts
-$posts_query = "SELECT p.*, m.mundial, c.categoria, e.estado
-                FROM posts p 
-                JOIN mundiales m ON p.id_mundial = m.id_mundial 
-                JOIN categorias c ON p.id_categoria = c.id_categoria
-                JOIN estados e ON p.id_estado = e.id_estado
-                WHERE p.id_usuario = ?
-                ORDER BY p.fecha_creacion DESC";
-$stmt = $conn->prepare($posts_query);
+// Get user's profile picture
+$user_data = $user; // Already have the data from above query
+
+// Get user's posts using stored procedure (only approved)
+$stmt = $conn->prepare("CALL sp_obtener_posts_usuario(?)");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $posts_result = $stmt->get_result();
 $stmt->close();
 
-// Get user's liked posts
-$likes_query = "SELECT p.*, m.mundial, c.categoria, l.fecha as fecha_like
-                FROM likes l
-                JOIN posts p ON l.id_post = p.id_post
-                JOIN mundiales m ON p.id_mundial = m.id_mundial 
-                JOIN categorias c ON p.id_categoria = c.id_categoria
-                JOIN estados e ON p.id_estado = e.id_estado
-                WHERE l.id_usuario = ? AND e.estado = 'aprobado'
-                ORDER BY l.fecha DESC";
-$stmt = $conn->prepare($likes_query);
+// Clear stored procedure results
+while ($conn->more_results()) {
+    $conn->next_result();
+}
+
+// Get user's liked posts using stored procedure
+$stmt = $conn->prepare("CALL sp_obtener_posts_likes_usuario(?)");
 $stmt->bind_param("i", $_SESSION['user_id']);
 $stmt->execute();
 $likes_result = $stmt->get_result();
 $stmt->close();
 
-$conn->close();
+// Clear stored procedure results
+while ($conn->more_results()) {
+    $conn->next_result();
+}
+
+// Don't close connection yet - we need it for comments queries
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -201,7 +194,7 @@ $conn->close();
                 if ($posts_result && $posts_result->num_rows > 0) {
                     while ($post = $posts_result->fetch_assoc()): 
                 ?>
-                    <article class="post-card">
+                    <article class="post-card" id="post-<?php echo $post['id_post']; ?>">
                         <div class="post-header">
                             <div class="post-meta">
                                 <span class="post-date"><?php echo date('d/m/Y H:i', strtotime($post['fecha_creacion'])); ?></span>
@@ -229,12 +222,72 @@ $conn->close();
                         <?php endif; ?>
                         
                         <div class="post-actions">
-                            <form method="POST" action="../controllers/eliminar_post_controller.php" style="display: inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post? Esta acción no se puede deshacer.');">
+                            <!-- Like Button -->
+                            <form method="POST" action="../controllers/like_controller.php">
+                                <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
+                                <button type="submit" class="action-btn like-btn <?php echo ($post['user_liked'] > 0) ? 'liked' : ''; ?>">
+                                    <span><?php echo ($post['user_liked'] > 0) ? '❤️' : '🤍'; ?></span>
+                                    <?php echo $post['likes_count']; ?> 
+                                </button>
+                            </form>
+                            
+                            <!-- Comment Button -->
+                            <button class="action-btn comment-btn" onclick="toggleComments(<?php echo $post['id_post']; ?>)">
+                                💬 <?php echo $post['comments_count']; ?>
+                            </button>
+                            
+                            <!-- Delete Button (only for post owner) -->
+                            <form method="POST" action="../controllers/eliminar_post_controller.php" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post? Esta acción no se puede deshacer.');">
                                 <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
                                 <input type="hidden" name="redirect" value="perfil.php">
                                 <button type="submit" class="action-btn delete-btn">
-                                    <span>🗑️</span> Eliminar
+                                    Eliminar
                                 </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Comments Section -->
+                        <div class="comments-section" id="comments-<?php echo $post['id_post']; ?>" style="display: none;">
+                            <div class="comments-list">
+                                <?php
+                                // Get comments for this post
+                                $comments_query = "SELECT c.*, u.nombre FROM comentarios c 
+                                                 JOIN usuarios u ON c.id_usuario = u.id_usuario 
+                                                 WHERE c.id_post = " . $post['id_post'] . " 
+                                                 ORDER BY c.fecha ASC";
+                                $comments_result = $conn->query($comments_query);
+                                
+                                if ($comments_result && $comments_result->num_rows > 0) {
+                                    while ($comment = $comments_result->fetch_assoc()):
+                                ?>
+                                    <div class="comment">
+                                        <div class="comment-header">
+                                            <div class="comment-info">
+                                                <strong><?php echo htmlspecialchars($comment['nombre']); ?></strong>
+                                                <span class="comment-date"><?php echo date('d/m/Y H:i', strtotime($comment['fecha'])); ?></span>
+                                            </div>
+                                            <?php if ($comment['id_usuario'] == $_SESSION['user_id'] || $_SESSION['user_role'] == 1): ?>
+                                            <form method="POST" action="../controllers/eliminar_comentario_controller.php" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este comentario?');">
+                                                <input type="hidden" name="id_comentario" value="<?php echo $comment['id_comentario']; ?>">
+                                                <button type="submit" class="delete-comment-btn" title="Eliminar comentario">🗑️</button>
+                                            </form>
+                                            <?php endif; ?>
+                                        </div>
+                                        <p class="comment-text"><?php echo htmlspecialchars($comment['comentario']); ?></p>
+                                    </div>
+                                <?php
+                                    endwhile;
+                                } else {
+                                    echo '<p class="no-comments">No hay comentarios aún.</p>';
+                                }
+                                ?>
+                            </div>
+                            
+                            <!-- Add Comment Form -->
+                            <form method="POST" action="../controllers/comentario_controller.php" class="comment-form">
+                                <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
+                                <textarea name="comentario" placeholder="Escribe un comentario..." maxlength="200" required></textarea>
+                                <button type="submit" class="btn-comment">Comentar</button>
                             </form>
                         </div>
                     </article>
@@ -258,7 +311,7 @@ $conn->close();
                 if ($likes_result && $likes_result->num_rows > 0) {
                     while ($post = $likes_result->fetch_assoc()): 
                 ?>
-                    <article class="post-card">
+                    <article class="post-card" id="post-<?php echo $post['id_post']; ?>">
                         <div class="post-header">
                             <div class="post-meta">
                                 <span class="post-date">❤️ <?php echo date('d/m/Y H:i', strtotime($post['fecha_like'])); ?></span>
@@ -281,6 +334,78 @@ $conn->close();
                                  onclick="openImageModal(this.src)">
                         </div>
                         <?php endif; ?>
+                        
+                        <div class="post-actions">
+                            <!-- Like Button -->
+                            <form method="POST" action="../controllers/like_controller.php">
+                                <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
+                                <button type="submit" class="action-btn like-btn <?php echo ($post['user_liked'] > 0) ? 'liked' : ''; ?>">
+                                    <span><?php echo ($post['user_liked'] > 0) ? '❤️' : '🤍'; ?></span>
+                                    <?php echo $post['likes_count']; ?> 
+                                </button>
+                            </form>
+                            
+                            <!-- Comment Button -->
+                            <button class="action-btn comment-btn" onclick="toggleComments(<?php echo $post['id_post']; ?>)">
+                                💬 <?php echo $post['comments_count']; ?>
+                            </button>
+                            
+                            <!-- Delete Button (only for post owner or admin) -->
+                            <?php if ($post['id_usuario'] == $_SESSION['user_id'] || $_SESSION['user_role'] == 1): ?>
+                            <form method="POST" action="../controllers/eliminar_post_controller.php" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este post? Esta acción no se puede deshacer.');">
+                                <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
+                                <input type="hidden" name="redirect" value="perfil.php">
+                                <button type="submit" class="action-btn delete-btn">
+                                    Eliminar
+                                </button>
+                            </form>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- Comments Section -->
+                        <div class="comments-section" id="comments-<?php echo $post['id_post']; ?>" style="display: none;">
+                            <div class="comments-list">
+                                <?php
+                                // Get comments for this post
+                                $comments_query = "SELECT c.*, u.nombre FROM comentarios c 
+                                                 JOIN usuarios u ON c.id_usuario = u.id_usuario 
+                                                 WHERE c.id_post = " . $post['id_post'] . " 
+                                                 ORDER BY c.fecha ASC";
+                                $comments_result_likes = $conn->query($comments_query);
+                                
+                                if ($comments_result_likes && $comments_result_likes->num_rows > 0) {
+                                    while ($comment = $comments_result_likes->fetch_assoc()):
+                                ?>
+                                    <div class="comment">
+                                        <div class="comment-header">
+                                            <div class="comment-info">
+                                                <strong><?php echo htmlspecialchars($comment['nombre']); ?></strong>
+                                                <span class="comment-date"><?php echo date('d/m/Y H:i', strtotime($comment['fecha'])); ?></span>
+                                            </div>
+                                            <?php if ($comment['id_usuario'] == $_SESSION['user_id'] || $_SESSION['user_role'] == 1): ?>
+                                            <form method="POST" action="../controllers/eliminar_comentario_controller.php" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este comentario?');">
+                                                <input type="hidden" name="id_comentario" value="<?php echo $comment['id_comentario']; ?>">
+                                                <button type="submit" class="delete-comment-btn" title="Eliminar comentario">🗑️</button>
+                                            </form>
+                                            <?php endif; ?>
+                                        </div>
+                                        <p class="comment-text"><?php echo htmlspecialchars($comment['comentario']); ?></p>
+                                    </div>
+                                <?php
+                                    endwhile;
+                                } else {
+                                    echo '<p class="no-comments">No hay comentarios aún.</p>';
+                                }
+                                ?>
+                            </div>
+                            
+                            <!-- Add Comment Form -->
+                            <form method="POST" action="../controllers/comentario_controller.php" class="comment-form">
+                                <input type="hidden" name="id_post" value="<?php echo $post['id_post']; ?>">
+                                <textarea name="comentario" placeholder="Escribe un comentario..." maxlength="200" required></textarea>
+                                <button type="submit" class="btn-comment">Comentar</button>
+                            </form>
+                        </div>
                     </article>
                 <?php 
                     endwhile;
@@ -360,7 +485,11 @@ $conn->close();
         <img class="modal-content" id="modalImage">
     </div>
     
-    <link rel="stylesheet" href="js/perfil.js">
+    <script src="js/perfil.js"></script>
 </body>
 </html>
 
+<?php
+// Close connection at the very end after all HTML rendering
+$conn->close();
+?>

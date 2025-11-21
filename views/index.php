@@ -20,7 +20,7 @@
         </div>
     </div>
     
-    <link rel="stylesheet" href="js/index.js">
+    <script src="js/index.js"></script>
 </body>
 </html>
 

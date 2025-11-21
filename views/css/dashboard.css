@@ -489,6 +489,11 @@ body.dark-mode .post-media {
     border-top: 1px solid #f0f0f0;
     display: flex;
     gap: 15px;
+    align-items: center;
+}
+
+.post-actions form {
+    display: flex;
 }
 
 .action-btn {
@@ -530,6 +535,10 @@ body.dark-mode .like-btn.liked {
 
 .delete-btn:hover {
     background: #dc2626 !important;
+}
+
+.post-actions form:has(.delete-btn) {
+    margin-left: auto;
 }
 
 body.dark-mode .delete-btn {

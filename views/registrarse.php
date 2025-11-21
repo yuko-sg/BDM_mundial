@@ -75,7 +75,7 @@
         </div>
     </div>
     
-    <link rel="stylesheet" href="js/registrarse.js">
+    <script src="js/registrarse.js"></script>
 </body>
 </html>
 

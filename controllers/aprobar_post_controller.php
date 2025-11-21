@@ -23,34 +23,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn = getConnection();
     
     if ($accion === 'aprobar') {
-        // Approve post: set estado to "aprobado" (id 1) and set fecha_aprobacion
+        // Approve post using stored procedure
         $fecha_aprobacion = date('Y-m-d H:i:s'); 
-        $stmt = $conn->prepare("UPDATE posts SET id_estado = 1, fecha_aprobacion = ? WHERE id_post = ?");
-        $stmt->bind_param("si", $fecha_aprobacion, $id_post);
+        $stmt = $conn->prepare("CALL sp_aprobar_post(?, ?)");
+        $stmt->bind_param("is", $id_post, $fecha_aprobacion);
         
         if ($stmt->execute()) {
             $stmt->close();
+            // Clear stored procedure results
+            while ($conn->more_results()) {
+                $conn->next_result();
+            }
             $conn->close();
             header("Location: ../views/aprobar_posts.php?success=aprobado");
             exit();
         } else {
             $stmt->close();
+            // Clear stored procedure results
+            while ($conn->more_results()) {
+                $conn->next_result();
+            }
             $conn->close();
             header("Location: ../views/aprobar_posts.php?error=error_aprobar");
             exit();
         }
     } else if ($accion === 'rechazar') {
-        // Reject post: delete it from database
-        $stmt = $conn->prepare("DELETE FROM posts WHERE id_post = ?");
+        // Reject post using stored procedure
+        $stmt = $conn->prepare("CALL sp_rechazar_post(?)");
         $stmt->bind_param("i", $id_post);
         
         if ($stmt->execute()) {
             $stmt->close();
+            // Clear stored procedure results
+            while ($conn->more_results()) {
+                $conn->next_result();
+            }
             $conn->close();
             header("Location: ../views/aprobar_posts.php?success=rechazado");
             exit();
         } else {
             $stmt->close();
+            // Clear stored procedure results
+            while ($conn->more_results()) {
+                $conn->next_result();
+            }
             $conn->close();
             header("Location: ../views/aprobar_posts.php?error=error_rechazar");
             exit();
