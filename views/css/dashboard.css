@@ -1,0 +1,674 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f5f5;
+    display: flex;
+    min-height: 100vh;
+    transition: background-color 0.3s ease;
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+    background: #1a1a1a;
+    color: #e0e0e0;
+}
+
+body.dark-mode .sidebar {
+    background: #0d1117;
+    border-right: 1px solid #30363d;
+}
+
+body.dark-mode .sidebar-header,
+body.dark-mode .user-info,
+body.dark-mode .sidebar-nav {
+    border-color: #30363d;
+}
+
+body.dark-mode .nav-item {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+body.dark-mode .nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+body.dark-mode .nav-item.active {
+    background: rgba(90, 103, 216, 0.2);
+    border-left-color: #5a67d8;
+}
+
+body.dark-mode .filters-section,
+body.dark-mode .post-card {
+    background: #161b22;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .filters-section h1,
+body.dark-mode .post-author,
+body.dark-mode .post-content p {
+    color: #e0e0e0;
+}
+
+body.dark-mode .filter-group label {
+    color: #c9d1d9;
+}
+
+body.dark-mode .filter-group select {
+    background: #0d1117;
+    border-color: #30363d;
+    color: #e0e0e0;
+}
+
+body.dark-mode .filter-group select:focus {
+    border-color: #5a67d8;
+}
+
+body.dark-mode .clear-filters-btn {
+    background: #30363d;
+    color: #c9d1d9;
+}
+
+body.dark-mode .clear-filters-btn:hover {
+    background: #3d444d;
+}
+
+body.dark-mode .post-header {
+    border-bottom-color: #30363d;
+}
+
+body.dark-mode .post-date {
+    color: #8b949e;
+}
+
+body.dark-mode .badge-mundial {
+    background: #1c2d41;
+    color: #58a6ff;
+}
+
+body.dark-mode .badge-categoria {
+    background: #2e1f3a;
+    color: #bc8cff;
+}
+
+body.dark-mode .post-actions {
+    border-top-color: #30363d;
+}
+
+body.dark-mode .action-btn {
+    background: #21262d;
+    color: #c9d1d9;
+}
+
+body.dark-mode .action-btn:hover {
+    background: #30363d;
+}
+
+body.dark-mode .no-posts {
+    background: #161b22;
+    color: #8b949e;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 280px;
+    background: #2c3e50;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 30px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.dark-mode-toggle {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    transition: background 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.dark-mode-toggle .icon-dark {
+    display: none;
+}
+
+body.dark-mode .dark-mode-toggle .icon-light {
+    display: none;
+}
+
+body.dark-mode .dark-mode-toggle .icon-dark {
+    display: block;
+}
+
+.user-info {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    background: #5a67d8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-initial {
+    color: white;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.user-email {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: background 0.3s ease;
+    font-size: 1rem;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.nav-item.active {
+    background: rgba(90, 103, 216, 0.3);
+    color: white;
+    border-left: 4px solid #5a67d8;
+}
+
+.nav-item span {
+    font-size: 1.2rem;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    background: rgba(229, 62, 62, 0.2);
+    color: #ff6b6b;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+    font-weight: 600;
+}
+
+.logout-btn:hover {
+    background: rgba(229, 62, 62, 0.3);
+}
+
+/* Main Content Styles */
+.main-content {
+    margin-left: 280px;
+    flex: 1;
+    padding: 30px;
+}
+
+.filters-section {
+    background: white;
+    padding: 25px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.alert {
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.alert-success {
+    background-color: #efe;
+    color: #3c3;
+    border: 1px solid #cfc;
+}
+
+body.dark-mode .alert-success {
+    background-color: #1f3d1f;
+    color: #6bff6b;
+    border-color: #205c20;
+}
+
+.filters-section h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+.filters-form {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: #555;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+.filter-group select {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background: white;
+    min-width: 200px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.filter-group select:focus {
+    outline: none;
+    border-color: #5a67d8;
+}
+
+.filter-btn {
+    padding: 10px 25px;
+    background: #5a67d8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: #4c51bf;
+}
+
+.clear-filters-btn {
+    padding: 10px 25px;
+    background: #e0e0e0;
+    color: #555;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.3s ease;
+    display: inline-block;
+}
+
+.clear-filters-btn:hover {
+    background: #d0d0d0;
+}
+
+/* Posts Container */
+.posts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.post-card {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-header {
+    padding: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.post-meta {
+    display: flex;
+    align-items: center;
+}
+
+.post-date {
+    font-size: 0.9rem;
+    color: #999;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.post-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-mundial {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.badge-categoria {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.post-content {
+    padding: 20px;
+}
+
+.post-content p {
+    color: #333;
+    line-height: 1.6;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+.post-media {
+    width: 100%;
+    max-height: 500px;
+    overflow: hidden;
+}
+
+.post-media img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.post-actions {
+    padding: 15px 20px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    gap: 15px;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+    font-weight: 600;
+    color: #555;
+}
+
+.action-btn:hover {
+    background: #e5e5e5;
+}
+
+.action-btn span {
+    font-size: 1.1rem;
+}
+
+.like-btn.liked {
+    background: #ffe0e0;
+    color: #e53e3e;
+}
+
+body.dark-mode .like-btn.liked {
+    background: #3d1f1f;
+    color: #ff6b6b;
+}
+
+/* Comments Section */
+.comments-section {
+    border-top: 1px solid #f0f0f0;
+    padding: 20px;
+    background: #f9f9f9;
+    transition: background-color 0.3s ease;
+}
+
+body.dark-mode .comments-section {
+    border-top-color: #30363d;
+    background: #0d1117;
+}
+
+.comments-list {
+    margin-bottom: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.comment {
+    background: white;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease;
+}
+
+body.dark-mode .comment {
+    background: #161b22;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.comment-header strong {
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .comment-header strong {
+    color: #e0e0e0;
+}
+
+.comment-date {
+    font-size: 0.85rem;
+    color: #999;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .comment-date {
+    color: #8b949e;
+}
+
+.comment-text {
+    color: #555;
+    line-height: 1.5;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .comment-text {
+    color: #c9d1d9;
+}
+
+.no-comments {
+    text-align: center;
+    color: #999;
+    padding: 20px;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .no-comments {
+    color: #8b949e;
+}
+
+.comment-form {
+    display: flex;
+    gap: 10px;
+}
+
+.comment-form textarea {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 60px;
+    font-family: inherit;
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode .comment-form textarea {
+    background: #0d1117;
+    border-color: #30363d;
+    color: #e0e0e0;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: #5a67d8;
+}
+
+.btn-comment {
+    padding: 12px 25px;
+    background: #5a67d8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-comment:hover {
+    background: #4c51bf;
+}
+
+.no-posts {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    color: #999;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.no-posts p {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+    
+    .sidebar-header h2,
+    .user-details,
+    .nav-item span + *,
+    .logout-btn span + * {
+        display: none;
+    }
+    
+    .user-info {
+        justify-content: center;
+    }
+    
+    .nav-item,
+    .logout-btn {
+        justify-content: center;
+    }
+    
+    .main-content {
+        margin-left: 70px;
+    }
+    
+    .filters-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group select {
+        width: 100%;
+    }
+}
+

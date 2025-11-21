@@ -1,0 +1,360 @@
+/* Profile Page Styles */
+
+.profile-header {
+    background: white;
+    padding: 40px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .profile-header {
+    background: #161b22;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.profile-picture {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 4px solid #5a67d8;
+}
+
+.profile-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.default-avatar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #5a67d8, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    font-weight: 700;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-info h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .profile-info h1 {
+    color: #e0e0e0;
+}
+
+.profile-info .email {
+    color: #777;
+    font-size: 1rem;
+    margin-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .profile-info .email {
+    color: #8b949e;
+}
+
+.profile-info .birth-date {
+    color: #999;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .profile-info .birth-date {
+    color: #8b949e;
+}
+
+/* Tabs Navigation */
+.tabs-nav {
+    background: white;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    display: flex;
+    gap: 10px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .tabs-nav {
+    background: #161b22;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 15px 20px;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #555;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.tab-btn:hover {
+    background: #e5e5e5;
+}
+
+.tab-btn.active {
+    background: #5a67d8;
+    color: white;
+}
+
+body.dark-mode .tab-btn {
+    background: #21262d;
+    color: #c9d1d9;
+}
+
+body.dark-mode .tab-btn:hover {
+    background: #30363d;
+}
+
+body.dark-mode .tab-btn.active {
+    background: #5a67d8;
+    color: white;
+}
+
+.tab-btn span {
+    font-size: 1.2rem;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .section-title {
+    color: #e0e0e0;
+}
+
+/* Badge Styles for Status */
+.badge-approved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+body.dark-mode .badge-approved {
+    background: #064e3b;
+    color: #6ee7b7;
+}
+
+body.dark-mode .badge-pending {
+    background: #78350f;
+    color: #fcd34d;
+}
+
+/* No Posts Message */
+.no-posts {
+    background: white;
+    padding: 60px 40px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .no-posts {
+    background: #161b22;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.no-posts p {
+    color: #999;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .no-posts p {
+    color: #8b949e;
+}
+
+.btn-link {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #5a67d8;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+
+.btn-link:hover {
+    background: #4c51bf;
+}
+
+/* Edit Forms */
+.edit-forms {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+}
+
+.form-card {
+    background: white;
+    padding: 30px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .form-card {
+    background: #161b22;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.form-card h3 {
+    font-size: 1.3rem;
+    color: #333;
+    margin-bottom: 20px;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .form-card h3 {
+    color: #e0e0e0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #555;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .form-group label {
+    color: #c9d1d9;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="date"],
+.form-group input[type="password"],
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    font-family: inherit;
+}
+
+body.dark-mode .form-group input[type="text"],
+body.dark-mode .form-group input[type="email"],
+body.dark-mode .form-group input[type="date"],
+body.dark-mode .form-group input[type="password"],
+body.dark-mode .form-group input[type="file"] {
+    background: #0d1117;
+    border-color: #30363d;
+    color: #e0e0e0;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #5a67d8;
+}
+
+.help-text {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #888;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .help-text {
+    color: #8b949e;
+}
+
+.btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-top: 10px;
+}
+
+.btn-primary {
+    background: #5a67d8;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #4c51bf;
+}
+
+.btn-secondary {
+    background: #e53e3e;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #c53030;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .tabs-nav {
+        flex-direction: column;
+    }
+    
+    .edit-forms {
+        grid-template-columns: 1fr;
+    }
+}
+
