@@ -5,6 +5,7 @@ DROP PROCEDURE IF EXISTS sp_registrar_usuario;
 DROP PROCEDURE IF EXISTS sp_aprobar_post;
 DROP PROCEDURE IF EXISTS sp_rechazar_post;
 DROP PROCEDURE IF EXISTS sp_obtener_posts_por_likes;
+DROP PROCEDURE IF EXISTS sp_obtener_posts_pendientes;
 DROP PROCEDURE IF EXISTS mundiales_selector;
 DROP PROCEDURE IF EXISTS categorias_selector;
 
@@ -84,6 +85,25 @@ BEGIN
     AND (p_id_mundial = 0 OR pl.id_mundial = p_id_mundial)
     AND (p_id_categoria = 0 OR pl.id_categoria = p_id_categoria)
     ORDER BY pl.likes_count DESC;
+END$$
+
+CREATE PROCEDURE sp_obtener_posts_pendientes()
+BEGIN
+    SELECT 
+        pa.id_post,
+        pa.id_usuario,
+        pa.contenido,
+        pa.multimedia,
+        pa.fecha_creacion,
+        pa.fecha_aprobacion,
+        pa.id_mundial,
+        pa.id_categoria,
+        pa.id_estado,
+        pa.mundial,
+        pa.categoria,
+        pa.estado
+    FROM por_aprobar pa
+    ORDER BY pa.fecha_creacion DESC;
 END$$
 
 CREATE PROCEDURE mundiales_selector()

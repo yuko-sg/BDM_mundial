@@ -61,6 +61,25 @@ BEGIN
     SELECT ROW_COUNT() as affected_rows;
 END$$
 
+CREATE PROCEDURE sp_obtener_posts_pendientes()
+BEGIN
+    SELECT 
+        pa.id_post,
+        pa.id_usuario,
+        pa.contenido,
+        pa.multimedia,
+        pa.fecha_creacion,
+        pa.fecha_aprobacion,
+        pa.id_mundial,
+        pa.id_categoria,
+        pa.id_estado,
+        pa.mundial,
+        pa.categoria,
+        pa.estado
+    FROM por_aprobar pa
+    ORDER BY pa.fecha_creacion DESC;
+END$$
+
 CREATE PROCEDURE sp_obtener_posts_usuario(IN p_id_usuario INT)
 BEGIN
     SELECT p.*, m.mundial, c.categoria, e.estado,

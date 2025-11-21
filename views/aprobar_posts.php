@@ -19,15 +19,13 @@ $user_result = $stmt->get_result();
 $user_data = $user_result->fetch_assoc();
 $stmt->close();
 
-// Get pending posts
-$posts_query = "SELECT p.*, m.mundial, c.categoria
-                FROM posts p 
-                JOIN mundiales m ON p.id_mundial = m.id_mundial 
-                JOIN categorias c ON p.id_categoria = c.id_categoria
-                JOIN estados e ON p.id_estado = e.id_estado
-                WHERE e.estado = 'por aprobar'
-                ORDER BY p.fecha_creacion DESC";
-$posts_result = $conn->query($posts_query);
+// Get pending posts using stored procedure with por_aprobar view
+$posts_result = $conn->query("CALL sp_obtener_posts_pendientes()");
+
+// Clear stored procedure results
+while ($conn->more_results()) {
+    $conn->next_result();
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">

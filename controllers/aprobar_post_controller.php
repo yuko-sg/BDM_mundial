@@ -2,35 +2,34 @@
 session_start();
 require_once '../models/db_connection.php';
 
-// Check if user is logged in and is admin
+// same
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] != 1) {
     header("Location: ../views/dashboard.php");
     exit();
 }
 
-// Check if form was submitted
+//  same
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_post = intval($_POST['id_post']);
     $accion = $_POST['accion'];
     
-    // Validate inputs
+    // inputs
     if ($id_post <= 0 || !in_array($accion, ['aprobar', 'rechazar'])) {
         header("Location: ../views/aprobar_posts.php?error=datos_invalidos");
         exit();
     }
     
-    // Get database connection
     $conn = getConnection();
     
     if ($accion === 'aprobar') {
-        // Approve post using stored procedure
+        // aprobar usando sp
         $fecha_aprobacion = date('Y-m-d H:i:s'); 
         $stmt = $conn->prepare("CALL sp_aprobar_post(?, ?)");
         $stmt->bind_param("is", $id_post, $fecha_aprobacion);
         
         if ($stmt->execute()) {
             $stmt->close();
-            // Clear stored procedure results
+            // limpiar resultados
             while ($conn->more_results()) {
                 $conn->next_result();
             }
@@ -39,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             $stmt->close();
-            // Clear stored procedure results
             while ($conn->more_results()) {
                 $conn->next_result();
             }
@@ -48,13 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
     } else if ($accion === 'rechazar') {
-        // Reject post using stored procedure
+        // rechazar post
         $stmt = $conn->prepare("CALL sp_rechazar_post(?)");
         $stmt->bind_param("i", $id_post);
         
         if ($stmt->execute()) {
             $stmt->close();
-            // Clear stored procedure results
             while ($conn->more_results()) {
                 $conn->next_result();
             }
@@ -63,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             $stmt->close();
-            // Clear stored procedure results
             while ($conn->more_results()) {
                 $conn->next_result();
             }
@@ -73,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 } else {
-    // If accessed directly without POST, redirect to aprobar posts page
+    // redirecctionar si se accede directamente sin POST
     header("Location: ../views/aprobar_posts.php");
     exit();
 }
