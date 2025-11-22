@@ -2,13 +2,11 @@
 session_start();
 require_once '../models/db_connection.php';
 
-// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../views/login.php");
     exit();
 }
 
-// Check if form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_comentario'])) {
     $id_comentario = intval($_POST['id_comentario']);
     $user_id = $_SESSION['user_id'];
@@ -16,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_comentario'])) {
     
     $conn = getConnection();
     
-    // First, verify ownership or admin status
+    // verificar admin
     $check_query = "SELECT id_usuario, id_post FROM comentarios WHERE id_comentario = ?";
     $stmt = $conn->prepare($check_query);
     $stmt->bind_param("i", $id_comentario);
@@ -26,11 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_comentario'])) {
     if ($result->num_rows > 0) {
         $comentario = $result->fetch_assoc();
         
-        // Allow deletion if user owns the comment OR is admin
+        // habilitar eliminacion si es el propietario o admin
         if ($comentario['id_usuario'] == $user_id || $is_admin) {
             $stmt->close();
             
-            // Delete the comment
+            // borrar comments
             $stmt = $conn->prepare("DELETE FROM comentarios WHERE id_comentario = ?");
             $stmt->bind_param("i", $id_comentario);
             
@@ -38,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_comentario'])) {
                 $stmt->close();
                 $conn->close();
                 
-                // Redirect back to dashboard with success message
+                //bye bye
                 header("Location: ../views/dashboard.php?success=comentario_eliminado#post-" . $comentario['id_post']);
                 exit();
             } else {
@@ -48,21 +46,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_comentario'])) {
                 exit();
             }
         } else {
-            // User doesn't have permission
+            // bye bye
             $stmt->close();
             $conn->close();
             header("Location: ../views/dashboard.php?error=sin_permiso#post-" . $comentario['id_post']);
             exit();
         }
     } else {
-        // Comment not found
+        //error
         $stmt->close();
         $conn->close();
         header("Location: ../views/dashboard.php?error=comentario_no_encontrado");
         exit();
     }
 } else {
-    // Invalid request
     header("Location: ../views/dashboard.php");
     exit();
 }

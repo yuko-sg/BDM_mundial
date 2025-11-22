@@ -166,6 +166,9 @@ while ($conn->more_results()) {
                 case 'sin_permiso':
                     $mensaje = 'No tienes permiso para realizar esta acción.';
                     break;
+                case 'auto_like':
+                    $mensaje = 'No puedes dar like a tu propio post.';
+                    break;
             }
             if ($mensaje) {
                 echo '<div class="alert alert-error">' . htmlspecialchars($mensaje) . '</div>';
